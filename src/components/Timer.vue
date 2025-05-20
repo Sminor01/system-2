@@ -11,7 +11,9 @@
 
 <script setup>
 import { computed, onUnmounted, ref } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const time = ref(0)
 const isRunning = ref(false)
 let timerInterval = null
@@ -30,10 +32,10 @@ const startTimer = () => {
   }, 1000)
 }
 
-const stopTimer = () => {
+const stopTimer = async () => {
   isRunning.value = false
   clearInterval(timerInterval)
-  saveTime()
+  await saveTime()
 }
 
 const resetTimer = () => {
@@ -42,14 +44,14 @@ const resetTimer = () => {
   clearInterval(timerInterval)
 }
 
-const saveTime = () => {
+const saveTime = async () => {
   try {
-    const savedTimes = JSON.parse(localStorage.getItem('trackedTimes') || '[]')
-    savedTimes.push({
-      time: time.value,
-      date: new Date().toISOString()
+    await store.dispatch('createTimeEntry', {
+      duration: time.value,
+      date: new Date().toISOString(),
+      userId: store.getters.currentUser?.id
     })
-    localStorage.setItem('trackedTimes', JSON.stringify(savedTimes))
+    time.value = 0
   } catch (error) {
     console.error('Error saving time:', error)
   }
@@ -90,17 +92,17 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background: #4CAF50;
+  background: #3498db;
   color: white;
   transition: background 0.3s;
 }
 
 button:disabled {
-  background: #cccccc;
+  background: #bdc3c7;
   cursor: not-allowed;
 }
 
 button:hover:not(:disabled) {
-  background: #45a049;
+  background: #2980b9;
 }
 </style> 

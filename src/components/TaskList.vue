@@ -134,9 +134,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useStore } from 'vuex'
 import Dashboard from './Dashboard.vue'
 import Modal from './Modal.vue'
 
+const store = useStore()
 const tasks = ref([])
 const workers = ref([])
 const showAddModal = ref(false)
@@ -177,17 +179,11 @@ const filteredTasks = computed(() => {
   return tasks.value.filter(task => task.status === statusFilter.value)
 })
 
-const loadData = () => {
+const loadData = async () => {
   try {
-    const savedTasks = localStorage.getItem('tasks')
-    const savedWorkers = localStorage.getItem('workers')
-    
-    if (savedTasks) {
-      tasks.value = JSON.parse(savedTasks)
-    }
-    if (savedWorkers) {
-      workers.value = JSON.parse(savedWorkers)
-    }
+    await store.dispatch('fetchTasks')
+    tasks.value = store.getters.getTasks
+    workers.value = store.getters.getWorkers
   } catch (error) {
     console.error('Error loading data:', error)
   }
@@ -227,26 +223,25 @@ const editTask = (task) => {
   showAddModal.value = true
 }
 
-const saveTask = () => {
+const saveTask = async () => {
   if (!currentTask.value.name || !currentTask.value.assignedTo || !currentTask.value.responsible) {
     alert('Please fill in all required fields!')
     return
   }
 
-  if (isEditing.value) {
-    const index = tasks.value.findIndex(t => t.id === currentTask.value.id)
-    if (index !== -1) {
-      tasks.value[index] = { ...currentTask.value }
+  try {
+    if (isEditing.value) {
+      await store.dispatch('updateTask', {
+        id: currentTask.value.id,
+        taskData: currentTask.value
+      })
+    } else {
+      await store.dispatch('createTask', currentTask.value)
     }
-  } else {
-    tasks.value.push({
-      id: Date.now(),
-      ...currentTask.value
-    })
+    closeModal()
+  } catch (error) {
+    console.error('Error saving task:', error)
   }
-  
-  closeModal()
-  saveTasks()
 }
 
 const updateTaskStatus = (task) => {
@@ -257,10 +252,13 @@ const updateTaskStatus = (task) => {
   }
 }
 
-const deleteTask = (taskId) => {
+const deleteTask = async (taskId) => {
   if (confirm('Are you sure you want to delete this task?')) {
-    tasks.value = tasks.value.filter(task => task.id !== taskId)
-    saveTasks()
+    try {
+      await store.dispatch('deleteTask', taskId)
+    } catch (error) {
+      console.error('Error deleting task:', error)
+    }
   }
 }
 
@@ -269,11 +267,14 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-const markAsDone = (task) => {
-  const index = tasks.value.findIndex(t => t.id === task.id)
-  if (index !== -1) {
-    tasks.value[index].status = 'Completed'
-    saveTasks()
+const markAsDone = async (task) => {
+  try {
+    await store.dispatch('updateTask', {
+      id: task.id,
+      taskData: { ...task, status: 'Completed' }
+    })
+  } catch (error) {
+    console.error('Error updating task status:', error)
   }
 }
 

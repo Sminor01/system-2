@@ -31,44 +31,39 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
 
-const tasks = ref([])
-
-const loadTasks = () => {
-  try {
-    const savedTasks = localStorage.getItem('tasks')
-    if (savedTasks) {
-      tasks.value = JSON.parse(savedTasks)
-    }
-  } catch (error) {
-    console.error('Error loading tasks:', error)
-  }
-}
+const store = useStore()
 
 const currentTasksCount = computed(() => {
-  return tasks.value.length
+  return store.getters.getTasks.length
 })
 
 const tasksByStatus = computed(() => {
   const statusCount = {}
-  tasks.value.forEach(task => {
+  store.getters.getTasks.forEach(task => {
     statusCount[task.status] = (statusCount[task.status] || 0) + 1
   })
   return statusCount
 })
 
 const totalTimeSpent = computed(() => {
-  return tasks.value.reduce((total, task) => total + (task.timeSpent || 0), 0)
+  return store.getters.getTasks.reduce((total, task) => total + (task.timeSpent || 0), 0)
 })
 
 const averageTimePerTask = computed(() => {
-  if (tasks.value.length === 0) return 0
-  return (totalTimeSpent.value / tasks.value.length).toFixed(1)
+  const tasks = store.getters.getTasks
+  if (tasks.length === 0) return 0
+  return (totalTimeSpent.value / tasks.length).toFixed(1)
 })
 
-onMounted(() => {
-  loadTasks()
+onMounted(async () => {
+  try {
+    await store.dispatch('fetchTasks')
+  } catch (error) {
+    console.error('Error loading tasks:', error)
+  }
 })
 </script>
 
@@ -81,8 +76,8 @@ onMounted(() => {
 }
 
 h2 {
-  margin: 0 0 20px 0;
-  color: #333;
+  margin-bottom: 20px;
+  color: #2c3e50;
 }
 
 .stats-grid {
@@ -95,18 +90,19 @@ h2 {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card h3 {
   margin: 0 0 15px 0;
   color: #2c3e50;
+  font-size: 1.2rem;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: bold;
-  color: #2196f3;
+  color: #3498db;
   margin-bottom: 15px;
 }
 
@@ -138,7 +134,6 @@ h2 {
 .time-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
   color: #666;
 }
 
@@ -147,7 +142,7 @@ h2 {
 }
 
 .time-value {
-  font-weight: bold;
-  color: #2196f3;
+  color: #3498db;
+  font-weight: 500;
 }
 </style> 

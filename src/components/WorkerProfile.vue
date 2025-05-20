@@ -1,83 +1,95 @@
 <template>
   <div class="worker-profile">
-    <h2>Worker Management</h2>
-    
-    <!-- Worker List Panel -->
-    <div class="worker-list">
-      <div class="list-header">
-        <h3>Workers</h3>
-        <div class="header-actions">
-          <div class="filter-group">
-            <label>Filter by Position:</label>
-            <select v-model="positionFilter" class="filter-select">
-              <option value="all">All Positions</option>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-              <option value="Lead">Lead</option>
-            </select>
-          </div>
-          <button @click="showAddModal = true" class="add-btn">
-            <span class="icon">+</span> Add Worker
-          </button>
-        </div>
+    <div class="list-header">
+      <h2>Workers</h2>
+      <div class="header-actions">
+        <button class="add-btn" @click="showAddModal = true">
+          <span class="icon">+</span> Add Worker
+        </button>
       </div>
-      <div class="workers">
-        <div v-for="worker in filteredWorkers" :key="worker.id" class="worker-card">
-          <div class="worker-info">
-            <h4>{{ worker.firstName }} {{ worker.lastName }}</h4>
-            <p>Position: {{ worker.position }}</p>
-            <p>Department: {{ worker.department }}</p>
-          </div>
-          <div class="worker-actions">
-            <button @click="editWorker(worker)" class="edit-btn">Edit</button>
-            <button @click="deleteWorker(worker.id)" class="delete-btn">Delete</button>
-          </div>
+    </div>
+
+    <div class="workers-list">
+      <div v-for="worker in workers" :key="worker.id" class="worker-card">
+        <div class="worker-info">
+          <h3>{{ worker.firstName }} {{ worker.lastName }} {{ worker.secondName }}</h3>
+          <p><strong>Position:</strong> {{ worker.position }}</p>
+          <p><strong>Department:</strong> {{ worker.department }}</p>
+        </div>
+        <div class="worker-actions">
+          <button class="edit-btn" @click="editWorker(worker)">Edit</button>
+          <button class="delete-btn" @click="deleteWorker(worker.id)">Delete</button>
         </div>
       </div>
     </div>
 
     <!-- Add/Edit Worker Modal -->
-    <Modal :show="showAddModal" :title="isEditing ? 'Edit Worker' : 'Add New Worker'" @close="closeModal">
-      <div class="profile-form">
-        <div class="form-group">
-          <label>Position</label>
-          <select v-model="currentWorker.position">
-            <option value="">Select position</option>
-            <option value="Frontend">Frontend</option>
-            <option value="Backend">Backend</option>
-            <option value="Lead">Lead</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Department</label>
-          <input v-model="currentWorker.department" type="text" placeholder="Enter department">
-        </div>
-        <div class="form-group">
-          <label>First Name</label>
-          <input v-model="currentWorker.firstName" type="text" placeholder="Enter first name">
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input v-model="currentWorker.lastName" type="text" placeholder="Enter last name">
-        </div>
-        <div class="form-group">
-          <label>Second Name</label>
-          <input v-model="currentWorker.secondName" type="text" placeholder="Enter second name">
-        </div>
-        <button @click="saveWorker" class="save-btn">{{ isEditing ? 'Save Changes' : 'Add Worker' }}</button>
+    <div v-if="showAddModal" class="modal">
+      <div class="modal-content">
+        <h3>{{ isEditing ? 'Edit Worker' : 'Add Worker' }}</h3>
+        <form @submit.prevent="saveWorker">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              id="firstName"
+              v-model="currentWorker.firstName"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              v-model="currentWorker.lastName"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="secondName">Second Name</label>
+            <input
+              type="text"
+              id="secondName"
+              v-model="currentWorker.secondName"
+            />
+          </div>
+          <div class="form-group">
+            <label for="position">Position</label>
+            <input
+              type="text"
+              id="position"
+              v-model="currentWorker.position"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="department">Department</label>
+            <input
+              type="text"
+              id="department"
+              v-model="currentWorker.department"
+              required
+            />
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="save-btn">Save</button>
+            <button type="button" class="cancel-btn" @click="closeModal">Cancel</button>
+          </div>
+        </form>
       </div>
-    </Modal>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import Modal from './Modal.vue'
+import { onMounted, ref } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const workers = ref([])
 const showAddModal = ref(false)
 const isEditing = ref(false)
-const positionFilter = ref('all')
 const currentWorker = ref({
   position: '',
   department: '',
@@ -86,29 +98,12 @@ const currentWorker = ref({
   secondName: ''
 })
 
-const filteredWorkers = computed(() => {
-  if (positionFilter.value === 'all') {
-    return workers.value
-  }
-  return workers.value.filter(worker => worker.position === positionFilter.value)
-})
-
-const loadWorkers = () => {
+const loadWorkers = async () => {
   try {
-    const savedWorkers = localStorage.getItem('workers')
-    if (savedWorkers) {
-      workers.value = JSON.parse(savedWorkers)
-    }
+    await store.dispatch('fetchWorkers')
+    workers.value = store.getters.getWorkers
   } catch (error) {
     console.error('Error loading workers:', error)
-  }
-}
-
-const saveWorkers = () => {
-  try {
-    localStorage.setItem('workers', JSON.stringify(workers.value))
-  } catch (error) {
-    console.error('Error saving workers:', error)
   }
 }
 
@@ -134,32 +129,34 @@ const editWorker = (worker) => {
   showAddModal.value = true
 }
 
-const saveWorker = () => {
+const saveWorker = async () => {
   if (!currentWorker.value.firstName || !currentWorker.value.lastName || !currentWorker.value.position) {
     alert('First name, last name, and position are required!')
     return
   }
 
-  if (isEditing.value) {
-    const index = workers.value.findIndex(w => w.id === currentWorker.value.id)
-    if (index !== -1) {
-      workers.value[index] = { ...currentWorker.value }
+  try {
+    if (isEditing.value) {
+      await store.dispatch('updateWorker', {
+        id: currentWorker.value.id,
+        workerData: currentWorker.value
+      })
+    } else {
+      await store.dispatch('createWorker', currentWorker.value)
     }
-  } else {
-    workers.value.push({
-      id: Date.now(),
-      ...currentWorker.value
-    })
+    closeModal()
+  } catch (error) {
+    console.error('Error saving worker:', error)
   }
-  
-  closeModal()
-  saveWorkers()
 }
 
-const deleteWorker = (workerId) => {
+const deleteWorker = async (workerId) => {
   if (confirm('Are you sure you want to delete this worker?')) {
-    workers.value = workers.value.filter(worker => worker.id !== workerId)
-    saveWorkers()
+    try {
+      await store.dispatch('deleteWorker', workerId)
+    } catch (error) {
+      console.error('Error deleting worker:', error)
+    }
   }
 }
 
@@ -176,11 +173,6 @@ onMounted(() => {
   margin: 20px 0;
 }
 
-h2, h3 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -192,33 +184,6 @@ h2, h3 {
   display: flex;
   align-items: center;
   gap: 20px;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.filter-group label {
-  color: #666;
-  font-weight: 500;
-}
-
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  color: #333;
-  background-color: white;
-  cursor: pointer;
-  min-width: 150px;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: #2196f3;
 }
 
 .add-btn {
@@ -239,33 +204,20 @@ h2, h3 {
   background: #45a049;
 }
 
-.icon {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.worker-list {
-  margin-bottom: 40px;
-}
-
-.workers {
+.workers-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-  margin-bottom: 30px;
 }
 
 .worker-card {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.worker-info h4 {
+.worker-info h3 {
   margin: 0 0 10px 0;
   color: #2c3e50;
 }
@@ -278,75 +230,105 @@ h2, h3 {
 .worker-actions {
   display: flex;
   gap: 10px;
+  margin-top: 15px;
+}
+
+.edit-btn, .delete-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
 }
 
 .edit-btn {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background: #2196f3;
+  background: #3498db;
   color: white;
-  transition: background 0.3s;
 }
 
 .edit-btn:hover {
-  background: #1976d2;
+  background: #2980b9;
 }
 
 .delete-btn {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background: #ff4444;
+  background: #e74c3c;
   color: white;
-  transition: background 0.3s;
 }
 
 .delete-btn:hover {
-  background: #cc0000;
+  background: #c0392b;
 }
 
-.profile-form {
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  margin-bottom: 15px;
 }
 
-label {
-  font-weight: bold;
-  color: #666;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
 }
 
-input, select {
-  padding: 10px;
+.form-group input {
+  width: 100%;
+  padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-.save-btn {
-  padding: 12px 24px;
-  font-size: 1rem;
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-btn, .cancel-btn {
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 1rem;
+}
+
+.save-btn {
   background: #4CAF50;
   color: white;
-  transition: background 0.3s;
-  margin-top: 10px;
 }
 
 .save-btn:hover {
   background: #45a049;
+}
+
+.cancel-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #7f8c8d;
 }
 </style> 
