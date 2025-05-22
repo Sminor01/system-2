@@ -23,7 +23,6 @@
       </div>
     </div>
 
-    <!-- Add/Edit Worker Modal -->
     <div v-if="showAddModal" class="modal">
       <div class="modal-content">
         <h3>{{ isEditing ? 'Edit Worker' : 'Add Worker' }}</h3>
