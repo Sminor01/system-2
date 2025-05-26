@@ -1,16 +1,35 @@
 <template>
   <div class="register-container">
     <div class="register-form">
-      <h2>Register</h2>
+      <h2>Регистрация</h2>
       <form @submit.prevent="handleRegister">
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="firstName">Имя</label>
           <input
             type="text"
-            id="username"
-            v-model="username"
+            id="firstName"
+            v-model="firstName"
             required
-            placeholder="Choose a username"
+            placeholder="Введите ваше имя"
+          />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Фамилия</label>
+          <input
+            type="text"
+            id="lastName"
+            v-model="lastName"
+            required
+            placeholder="Введите вашу фамилию"
+          />
+        </div>
+        <div class="form-group">
+          <label for="secondName">Отчество</label>
+          <input
+            type="text"
+            id="secondName"
+            v-model="secondName"
+            placeholder="Введите ваше отчество (необязательно)"
           />
         </div>
         <div class="form-group">
@@ -20,38 +39,38 @@
             id="email"
             v-model="email"
             required
-            placeholder="Enter your email"
+            placeholder="Введите ваш email"
           />
         </div>
         <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input
-            type="text"
-            id="fullName"
-            v-model="fullName"
-            required
-            placeholder="Enter your full name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">Пароль</label>
           <input
             type="password"
             id="password"
             v-model="password"
             required
-            placeholder="Choose a password"
+            placeholder="Введите пароль"
+          />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Подтверждение пароля</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            v-model="confirmPassword"
+            required
+            placeholder="Подтвердите пароль"
           />
         </div>
         <div v-if="error" class="error-message">
           {{ error }}
         </div>
         <button type="submit" :disabled="loading">
-          {{ loading ? 'Registering...' : 'Register' }}
+          {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
         </button>
         <p class="login-link">
-          Already have an account?
-          <router-link to="/login">Login here</router-link>
+          Уже есть аккаунт?
+          <router-link to="/login">Войти</router-link>
         </p>
       </form>
     </div>
@@ -66,26 +85,34 @@ import { useStore } from 'vuex';
 const store = useStore();
 const router = useRouter();
 
-const username = ref('');
+const firstName = ref('');
+const lastName = ref('');
+const secondName = ref('');
 const email = ref('');
-const fullName = ref('');
 const password = ref('');
+const confirmPassword = ref('');
 const loading = ref(false);
 const error = ref('');
 
 const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Пароли не совпадают';
+    return;
+  }
+
   try {
     loading.value = true;
     error.value = '';
     await store.dispatch('register', {
-      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      secondName: secondName.value,
       email: email.value,
-      fullName: fullName.value,
       password: password.value
     });
     router.push('/');
   } catch (err) {
-    error.value = err.response?.data?.error || 'Registration failed';
+    error.value = err.response?.data?.error || 'Ошибка при регистрации';
   } finally {
     loading.value = false;
   }
@@ -110,9 +137,9 @@ const handleRegister = async () => {
   max-width: 400px;
 }
 
-h2 {
+.register-form h2 {
   text-align: center;
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 1.5rem;
 }
 
@@ -120,51 +147,61 @@ h2 {
   margin-bottom: 1rem;
 }
 
-label {
+.form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #2c3e50;
+  color: #666;
 }
 
-input {
+.form-group input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
+.form-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
 button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #3498db;
+  background-color: #1976d2;
   color: white;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #1565c0;
 }
 
 button:disabled {
-  background-color: #bdc3c7;
+  background-color: #ccc;
   cursor: not-allowed;
 }
 
 .error-message {
-  color: #e74c3c;
-  margin-top: 0.5rem;
+  color: #d32f2f;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
 .login-link {
   text-align: center;
   margin-top: 1rem;
-  color: #7f8c8d;
+  color: #666;
 }
 
 .login-link a {
-  color: #3498db;
+  color: #1976d2;
   text-decoration: none;
 }
 

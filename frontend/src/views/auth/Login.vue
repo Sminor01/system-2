@@ -11,15 +11,17 @@
       :rules="emailRules"
       required
       autocomplete="email"
+      placeholder="Введите ваш email"
     />
 
     <v-text-field
       v-model="password"
-      label="Password"
+      label="Пароль"
       type="password"
       :rules="passwordRules"
       required
       autocomplete="current-password"
+      placeholder="Введите ваш пароль"
     />
 
     <v-btn
@@ -29,7 +31,7 @@
       :loading="loading"
       :disabled="!valid || loading"
     >
-      Login
+      {{ loading ? 'Вход...' : 'Войти' }}
     </v-btn>
 
     <v-card-text class="text-center pt-4">
@@ -37,7 +39,7 @@
         :to="{ name: 'register' }"
         class="text-decoration-none"
       >
-        Don't have an account? Register
+        Нет аккаунта? Зарегистрироваться
       </router-link>
     </v-card-text>
   </v-form>
@@ -54,12 +56,12 @@ export default {
     email: '',
     password: '',
     emailRules: [
-      v => !!v || 'Email is required',
-      v => /.+@.+\..+/.test(v) || 'Email must be valid'
+      v => !!v || 'Email обязателен',
+      v => /.+@.+\..+/.test(v) || 'Email должен быть действительным'
     ],
     passwordRules: [
-      v => !!v || 'Password is required',
-      v => v.length >= 6 || 'Password must be at least 6 characters'
+      v => !!v || 'Пароль обязателен',
+      v => v.length >= 6 || 'Пароль должен содержать минимум 6 символов'
     ]
   }),
 

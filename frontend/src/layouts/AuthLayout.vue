@@ -23,7 +23,7 @@
                 flat
               >
                 <v-toolbar-title>
-                  {{ $route.meta.title }}
+                  {{ $route.name === 'login' ? 'Вход в систему' : 'Регистрация' }}
                 </v-toolbar-title>
               </v-toolbar>
               <v-card-text>

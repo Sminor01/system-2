@@ -1,8 +1,6 @@
 <template>
   <div class="dashboard">
     <div class="dashboard-header">
-      <!-- <h2>Панель управления задачами</h2> -->
-      <!-- <button @click="$emit('close')" class="close-btn">×</button> -->
     </div>
     
     <div class="dashboard-content">

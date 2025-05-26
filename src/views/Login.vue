@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-form">
-      <h2>Login</h2>
+      <h2>Вход в систему</h2>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email">Email</label>
@@ -10,28 +10,28 @@
             id="email"
             v-model="email"
             required
-            placeholder="Enter your email"
+            placeholder="Введите ваш email"
           />
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">Пароль</label>
           <input
             type="password"
             id="password"
             v-model="password"
             required
-            placeholder="Enter your password"
+            placeholder="Введите ваш пароль"
           />
         </div>
         <div v-if="error" class="error-message">
           {{ error }}
         </div>
         <button type="submit" :disabled="loading">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? 'Выполняется вход...' : 'Войти' }}
         </button>
         <p class="register-link">
-          Don't have an account?
-          <router-link to="/register">Register here</router-link>
+          Нет аккаунта?
+          <router-link to="/register">Зарегистрироваться</router-link>
         </p>
       </form>
     </div>
@@ -86,9 +86,9 @@ const handleLogin = async () => {
   max-width: 400px;
 }
 
-h2 {
+.login-form h2 {
   text-align: center;
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 1.5rem;
 }
 
@@ -96,51 +96,61 @@ h2 {
   margin-bottom: 1rem;
 }
 
-label {
+.form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #2c3e50;
+  color: #666;
 }
 
-input {
+.form-group input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
+.form-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
 button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #3498db;
+  background-color: #1976d2;
   color: white;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #1565c0;
 }
 
 button:disabled {
-  background-color: #bdc3c7;
+  background-color: #ccc;
   cursor: not-allowed;
 }
 
 .error-message {
-  color: #e74c3c;
-  margin-top: 0.5rem;
+  color: #d32f2f;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
 .register-link {
   text-align: center;
   margin-top: 1rem;
-  color: #7f8c8d;
+  color: #666;
 }
 
 .register-link a {
-  color: #3498db;
+  color: #1976d2;
   text-decoration: none;
 }
 
