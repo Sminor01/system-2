@@ -1,27 +1,27 @@
 <template>
   <div class="statistics">
-    <h2>Task Statistics</h2>
+    <h2>Статистика задач</h2>
     
     <div class="stats-grid">
       <div class="stat-card">
-        <h3>Current Tasks</h3>
+        <h3>Текущие задачи</h3>
         <div class="stat-value">{{ currentTasksCount }}</div>
         <div class="stat-details">
           <div v-for="(count, status) in tasksByStatus" :key="status" class="status-item">
-            <span class="status-label">{{ status }}:</span>
+            <span class="status-label">{{ getStatusLabel(status) }}:</span>
             <span class="status-count">{{ count }}</span>
           </div>
         </div>
       </div>
 
       <div class="stat-card">
-        <h3>Total Time Spent</h3>
-        <div class="stat-value">{{ totalTimeSpent }} hours</div>
+        <h3>Общее затраченное время</h3>
+        <div class="stat-value">{{ totalTimeSpent }} часов</div>
         <div class="stat-details">
           <div class="time-breakdown">
             <div class="time-item">
-              <span class="time-label">Average per task:</span>
-              <span class="time-value">{{ averageTimePerTask }} hours</span>
+              <span class="time-label">Среднее время на задачу:</span>
+              <span class="time-value">{{ averageTimePerTask }} часов</span>
             </div>
           </div>
         </div>
@@ -35,6 +35,19 @@ import { computed, onMounted, ref } from 'vue'
 
 const tasks = ref([])
 
+const statusLabels = {
+  'New': 'Новые',
+  'Analysis': 'Анализ',
+  'In Development': 'В разработке',
+  'Review': 'На проверке',
+  'Under Revision': 'На доработке',
+  'Rollout': 'Внедрение',
+  'Other Direction': 'Другое направление',
+  'Completed': 'Завершённые'
+}
+
+const getStatusLabel = (status) => statusLabels[status] || status
+
 const loadTasks = () => {
   try {
     const savedTasks = localStorage.getItem('tasks')
@@ -42,7 +55,7 @@ const loadTasks = () => {
       tasks.value = JSON.parse(savedTasks)
     }
   } catch (error) {
-    console.error('Error loading tasks:', error)
+    console.error('Ошибка загрузки задач:', error)
   }
 }
 

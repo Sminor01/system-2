@@ -189,7 +189,7 @@ const loadData = () => {
       workers.value = JSON.parse(savedWorkers)
     }
   } catch (error) {
-    console.error('Error loading data:', error)
+    console.error('Ошибка загрузки данных:', error)
   }
 }
 
@@ -197,7 +197,7 @@ const saveTasks = () => {
   try {
     localStorage.setItem('tasks', JSON.stringify(tasks.value))
   } catch (error) {
-    console.error('Error saving tasks:', error)
+    console.error('Ошибка сохранения задач:', error)
   }
 }
 
@@ -229,7 +229,7 @@ const editTask = (task) => {
 
 const saveTask = () => {
   if (!currentTask.value.name || !currentTask.value.assignedTo || !currentTask.value.responsible) {
-    alert('Please fill in all required fields!')
+    alert('Пожалуйста, заполните все обязательные поля!')
     return
   }
 
@@ -258,14 +258,14 @@ const updateTaskStatus = (task) => {
 }
 
 const deleteTask = (taskId) => {
-  if (confirm('Are you sure you want to delete this task?')) {
+  if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
     tasks.value = tasks.value.filter(task => task.id !== taskId)
     saveTasks()
   }
 }
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Not set'
+  if (!dateString) return 'Не указана'
   return new Date(dateString).toLocaleDateString()
 }
 

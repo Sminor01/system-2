@@ -1,23 +1,23 @@
 <template>
   <div class="worker-profile">
-    <h2>Worker Management</h2>
+    <h2>Управление сотрудниками</h2>
     
     <!-- Worker List Panel -->
     <div class="worker-list">
       <div class="list-header">
-        <h3>Workers</h3>
+        <h3>Сотрудники</h3>
         <div class="header-actions">
           <div class="filter-group">
-            <label>Filter by Position:</label>
+            <label>Фильтр по должности:</label>
             <select v-model="positionFilter" class="filter-select">
-              <option value="all">All Positions</option>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-              <option value="Lead">Lead</option>
+              <option value="all">Все должности</option>
+              <option value="Frontend">Фронтенд</option>
+              <option value="Backend">Бэкенд</option>
+              <option value="Lead">Руководитель</option>
             </select>
           </div>
           <button @click="showAddModal = true" class="add-btn">
-            <span class="icon">+</span> Add Worker
+            <span class="icon">+</span> Добавить сотрудника
           </button>
         </div>
       </div>
@@ -25,46 +25,46 @@
         <div v-for="worker in filteredWorkers" :key="worker.id" class="worker-card">
           <div class="worker-info">
             <h4>{{ worker.firstName }} {{ worker.lastName }}</h4>
-            <p>Position: {{ worker.position }}</p>
-            <p>Department: {{ worker.department }}</p>
+            <p>Должность: {{ getPositionLabel(worker.position) }}</p>
+            <p>Отдел: {{ worker.department }}</p>
           </div>
           <div class="worker-actions">
-            <button @click="editWorker(worker)" class="edit-btn">Edit</button>
-            <button @click="deleteWorker(worker.id)" class="delete-btn">Delete</button>
+            <button @click="editWorker(worker)" class="edit-btn">Редактировать</button>
+            <button @click="deleteWorker(worker.id)" class="delete-btn">Удалить</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Add/Edit Worker Modal -->
-    <Modal :show="showAddModal" :title="isEditing ? 'Edit Worker' : 'Add New Worker'" @close="closeModal">
+    <Modal :show="showAddModal" :title="isEditing ? 'Редактировать сотрудника' : 'Добавить нового сотрудника'" @close="closeModal">
       <div class="profile-form">
         <div class="form-group">
-          <label>Position</label>
+          <label>Должность</label>
           <select v-model="currentWorker.position">
-            <option value="">Select position</option>
-            <option value="Frontend">Frontend</option>
-            <option value="Backend">Backend</option>
-            <option value="Lead">Lead</option>
+            <option value="">Выберите должность</option>
+            <option value="Frontend">Фронтенд</option>
+            <option value="Backend">Бэкенд</option>
+            <option value="Lead">Руководитель</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Department</label>
-          <input v-model="currentWorker.department" type="text" placeholder="Enter department">
+          <label>Отдел</label>
+          <input v-model="currentWorker.department" type="text" placeholder="Введите название отдела">
         </div>
         <div class="form-group">
-          <label>First Name</label>
-          <input v-model="currentWorker.firstName" type="text" placeholder="Enter first name">
+          <label>Имя</label>
+          <input v-model="currentWorker.firstName" type="text" placeholder="Введите имя">
         </div>
         <div class="form-group">
-          <label>Last Name</label>
-          <input v-model="currentWorker.lastName" type="text" placeholder="Enter last name">
+          <label>Фамилия</label>
+          <input v-model="currentWorker.lastName" type="text" placeholder="Введите фамилию">
         </div>
         <div class="form-group">
-          <label>Second Name</label>
-          <input v-model="currentWorker.secondName" type="text" placeholder="Enter second name">
+          <label>Отчество</label>
+          <input v-model="currentWorker.secondName" type="text" placeholder="Введите отчество">
         </div>
-        <button @click="saveWorker" class="save-btn">{{ isEditing ? 'Save Changes' : 'Add Worker' }}</button>
+        <button @click="saveWorker" class="save-btn">{{ isEditing ? 'Сохранить изменения' : 'Добавить сотрудника' }}</button>
       </div>
     </Modal>
   </div>
@@ -86,6 +86,14 @@ const currentWorker = ref({
   secondName: ''
 })
 
+const positionLabels = {
+  'Frontend': 'Фронтенд',
+  'Backend': 'Бэкенд',
+  'Lead': 'Руководитель'
+}
+
+const getPositionLabel = (position) => positionLabels[position] || position
+
 const filteredWorkers = computed(() => {
   if (positionFilter.value === 'all') {
     return workers.value
@@ -100,7 +108,7 @@ const loadWorkers = () => {
       workers.value = JSON.parse(savedWorkers)
     }
   } catch (error) {
-    console.error('Error loading workers:', error)
+    console.error('Ошибка загрузки сотрудников:', error)
   }
 }
 
@@ -108,7 +116,7 @@ const saveWorkers = () => {
   try {
     localStorage.setItem('workers', JSON.stringify(workers.value))
   } catch (error) {
-    console.error('Error saving workers:', error)
+    console.error('Ошибка сохранения сотрудников:', error)
   }
 }
 
@@ -136,7 +144,7 @@ const editWorker = (worker) => {
 
 const saveWorker = () => {
   if (!currentWorker.value.firstName || !currentWorker.value.lastName || !currentWorker.value.position) {
-    alert('First name, last name, and position are required!')
+    alert('Имя, фамилия и должность обязательны для заполнения!')
     return
   }
 
@@ -157,7 +165,7 @@ const saveWorker = () => {
 }
 
 const deleteWorker = (workerId) => {
-  if (confirm('Are you sure you want to delete this worker?')) {
+  if (confirm('Вы уверены, что хотите удалить этого сотрудника?')) {
     workers.value = workers.value.filter(worker => worker.id !== workerId)
     saveWorkers()
   }
@@ -232,11 +240,13 @@ h2, h3 {
   cursor: pointer;
   background: #4CAF50;
   color: white;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
 }
 
 .add-btn:hover {
   background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .icon {
@@ -250,64 +260,85 @@ h2, h3 {
 
 .workers {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
 
 .worker-card {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.worker-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.worker-info {
+  flex-grow: 1;
 }
 
 .worker-info h4 {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .worker-info p {
-  margin: 5px 0;
+  margin: 8px 0;
   color: #666;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .worker-actions {
   display: flex;
   gap: 10px;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
 }
 
-.edit-btn {
+.edit-btn, .delete-btn {
   padding: 8px 16px;
   font-size: 0.9rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.edit-btn {
   background: #2196f3;
   color: white;
-  transition: background 0.3s;
 }
 
 .edit-btn:hover {
   background: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
 }
 
 .delete-btn {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
   background: #ff4444;
   color: white;
-  transition: background 0.3s;
 }
 
 .delete-btn:hover {
   background: #cc0000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 68, 68, 0.2);
 }
 
 .profile-form {
@@ -323,15 +354,23 @@ h2, h3 {
 }
 
 label {
-  font-weight: bold;
-  color: #666;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
 }
 
 input, select {
-  padding: 10px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
 }
 
 .save-btn {
@@ -342,11 +381,14 @@ input, select {
   cursor: pointer;
   background: #4CAF50;
   color: white;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
   margin-top: 10px;
+  font-weight: 500;
 }
 
 .save-btn:hover {
   background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
 }
 </style> 

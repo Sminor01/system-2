@@ -2,9 +2,9 @@
   <div class="timer">
     <div class="display">{{ formattedTime }}</div>
     <div class="controls">
-      <button @click="startTimer" :disabled="isRunning">Start</button>
-      <button @click="stopTimer" :disabled="!isRunning">Stop</button>
-      <button @click="resetTimer">Reset</button>
+      <button @click="startTimer" :disabled="isRunning">Старт</button>
+      <button @click="stopTimer" :disabled="!isRunning">Стоп</button>
+      <button @click="resetTimer">Сброс</button>
     </div>
   </div>
 </template>
@@ -51,7 +51,7 @@ const saveTime = () => {
     })
     localStorage.setItem('trackedTimes', JSON.stringify(savedTimes))
   } catch (error) {
-    console.error('Error saving time:', error)
+    console.error('Ошибка сохранения времени:', error)
   }
 }
 
